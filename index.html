@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Disaster Relief Agent</title>
+  
+  <!-- Web App Manifest & Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#f59e0b">
+  <meta name="description" content="Offline-first AI assistant and rescue tools for emergency disaster relief.">
+  <link rel="apple-touch-icon" href="icon.png">
+  
+  <!-- Google Fonts & Leaflet Map Library -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Strobe Overlay for Emergency Beacon -->
+  <div id="strobe-overlay" class="hidden"></div>
+
+  <!-- App Wrapper -->
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="main-header">
+      <div class="logo-area">
+        <img src="icon.png" alt="Rescue Shield Logo" class="logo-img">
+        <div class="logo-text">
+          <h1 data-i18n="app_title">Disaster Relief AI</h1>
+          <span class="sub-text" data-i18n="app_subtitle">Emergency Assistant</span>
+        </div>
+      </div>
+      
+      <div class="status-and-lang">
+        <div id="network-status" class="status-indicator online">
+          <span class="status-dot"></span>
+          <span id="status-text" data-i18n="status_online">Online</span>
+        </div>
+        
+        <div class="lang-selector">
+          <select id="lang-select" aria-label="Change Language">
+            <option value="hi" selected>हिन्दी (Hindi)</option>
+            <option value="en">English (India)</option>
+            <option value="bn">বাংলা (Bengali)</option>
+            <option value="mr">मराठी (Marathi)</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <!-- Simulated Active Alert Banner -->
+    <section class="alert-banner">
+      <div class="alert-label">
+        <span class="pulse-icon"></span>
+        <strong data-i18n="active_alert">ACTIVE ALERT:</strong>
+      </div>
+      <div class="alert-content">
+        <select id="simulated-disaster-selector" aria-label="Select disaster alert simulator">
+          <option value="none" data-i18n="alert_none">No Active Warning (Simulation Mode)</option>
+          <option value="flood" data-i18n="alert_flood">Monsoon Flood Evacuation - Mumbai & Assam</option>
+          <option value="earthquake" data-i18n="alert_earthquake">Himalayan Region Earthquake Tremor</option>
+          <option value="cyclone" data-i18n="alert_cyclone">Bay of Bengal Cyclone - Odisha & West Bengal</option>
+        </select>
+        <span id="alert-instructions" class="alert-info" data-i18n="alert_instructions_none">Select a simulated alert to test responsive workflows.</span>
+      </div>
+    </section>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-target="tab-dashboard" aria-label="Dashboard Tab">
+        <span class="tab-icon">📋</span>
+        <span class="tab-label" data-i18n="tab_dashboard">Dashboard</span>
+      </button>
+      <button class="tab-btn" data-target="tab-map" aria-label="Shelters & Map Tab">
+        <span class="tab-icon">🗺️</span>
+        <span class="tab-label" data-i18n="tab_map">Shelters</span>
+      </button>
+      <button class="tab-btn" data-target="tab-chat" aria-label="AI Triage Chat Tab">
+        <span class="tab-icon">💬</span>
+        <span class="tab-label" data-i18n="tab_chat">AI Triage</span>
+      </button>
+      <button class="tab-btn" data-target="tab-firstaid" aria-label="First Aid Tab">
+        <span class="tab-icon">🩹</span>
+        <span class="tab-label" data-i18n="tab_firstaid">First Aid</span>
+      </button>
+      <button class="tab-btn" data-target="tab-checklist" aria-label="Checklists Tab">
+        <span class="tab-icon">✅</span>
+        <span class="tab-label" data-i18n="tab_checklist">Checklists</span>
+      </button>
+      <button class="tab-btn" data-target="tab-tools" aria-label="Rescue Tools Tab">
+        <span class="tab-icon">🚨</span>
+        <span class="tab-label" data-i18n="tab_tools">Beacon</span>
+      </button>
+    </nav>
+
+    <!-- Content Sections -->
+    <main class="main-content">
+      
+      <!-- 1. DASHBOARD -->
+      <section id="tab-dashboard" class="tab-panel active">
+        <div class="dashboard-grid">
+          
+          <!-- SOS Fast Actions -->
+          <div class="card sos-card">
+            <h2 data-i18n="sos_actions">SOS Fast Actions</h2>
+            <p data-i18n="sos_description" class="card-desc">Instantly alert rescuers or prepare emergency communication.</p>
+            <div class="sos-btn-group">
+              <button id="quick-siren-btn" class="btn btn-danger btn-pulse">
+                <span class="btn-icon">🚨</span>
+                <span data-i18n="btn_sound_siren">Sound Audio Siren</span>
+              </button>
+              <button id="trigger-sos-msg-btn" class="btn btn-warning">
+                <span class="btn-icon">📨</span>
+                <span data-i18n="btn_generate_sos">Generate SOS Message</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Status Check -->
+          <div class="card status-check-card">
+            <h2 data-i18n="safety_status_title">My Safety Status</h2>
+            <p data-i18n="safety_status_desc" class="card-desc">Mark your safety status locally for quick messaging templates.</p>
+            <div class="status-options">
+              <button class="status-opt-btn active" data-status="safe">
+                <span class="status-badge status-safe">✓</span>
+                <span data-i18n="status_safe">Safe & Well</span>
+              </button>
+              <button class="status-opt-btn" data-status="injured">
+                <span class="status-badge status-injured">⚠</span>
+                <span data-i18n="status_injured">Injured / Sick</span>
+              </button>
+              <button class="status-opt-btn" data-status="stranded">
+                <span class="status-badge status-stranded">✖</span>
+                <span data-i18n="status_stranded">Stranded / Trapped</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Emergency Directory -->
+          <div class="card directory-card">
+            <div class="card-header-row">
+              <h2 data-i18n="contacts_title">Emergency Directory</h2>
+              <select id="country-contacts-select" aria-label="Select Country Contacts">
+                <option value="in" selected>India (112 / 1078)</option>
+                <option value="us">United States (911)</option>
+                <option value="jp">Japan (119)</option>
+                <option value="es">Spain (112)</option>
+              </select>
+            </div>
+            <div class="contacts-list" id="contacts-container">
+              <!-- Dynamically populated contacts -->
+            </div>
+          </div>
+
+          <!-- Emergency Tip of the Day -->
+          <div class="card tip-card">
+            <h2 data-i18n="tip_title">Offline Disaster Tip</h2>
+            <div class="tip-content">
+              <p id="tip-text" data-i18n="tip_content_default">Loading essential emergency survival tips...</p>
+              <button id="next-tip-btn" class="btn btn-secondary btn-sm" data-i18n="next_tip_btn">Next Survival Tip</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 2. MAP & SHELTERS -->
+      <section id="tab-map" class="tab-panel">
+        <div class="split-view">
+          <!-- Control Panel -->
+          <div class="map-controls card">
+            <h2 data-i18n="shelter_finder_title">Find Emergency Shelter</h2>
+            <p data-i18n="shelter_finder_desc" class="card-desc">Locate the nearest high-ground shelters and triage medical facilities.</p>
+            
+            <div class="location-search-box">
+              <input type="text" id="location-input" placeholder="Enter city (e.g. Mumbai, Tokyo, San Francisco)" data-i18n-placeholder="location_placeholder">
+              <div class="search-actions">
+                <button id="search-btn" class="btn btn-primary" data-i18n="search_btn">Search</button>
+                <button id="gps-btn" class="btn btn-secondary">
+                  <span class="btn-icon">📍</span>
+                  <span data-i18n="gps_btn">GPS</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Shelter Listings (Always visible / Offline Fallback) -->
+            <div class="shelter-list-container">
+              <h3 data-i18n="nearest_shelters_title">Nearest Safe Shelter Points</h3>
+              <div id="shelters-list" class="shelters-items-list">
+                <!-- Dynamically loaded -->
+              </div>
+
+              <h3 data-i18n="nearest_hospitals_title" class="margin-top-md">Medical Emergency Facilities</h3>
+              <div id="hospitals-list" class="shelters-items-list">
+                <!-- Dynamically loaded -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Leaflet Map Container -->
+          <div class="map-wrapper card">
+            <div id="map">
+              <div class="map-offline-placeholder hidden">
+                <span class="map-placeholder-icon">📡</span>
+                <h3 data-i18n="map_offline_title">Map Visuals Unavailable Offline</h3>
+                <p data-i18n="map_offline_desc">Leaflet maps cannot display tile imagery without network. Please refer to the text list on the left for exact distances and navigation instructions.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. AI TRIAGE CHAT -->
+      <section id="tab-chat" class="tab-panel">
+        <div class="chat-container card">
+          <div class="chat-header">
+            <div class="chat-agent-info">
+              <span class="chat-agent-avatar">🤖</span>
+              <div>
+                <h2 data-i18n="chat_title">Emergency AI Assistant</h2>
+                <span class="chat-status" data-i18n="chat_status">Online & Local Offline Engine Ready</span>
+              </div>
+            </div>
+            <button id="clear-chat-btn" class="btn btn-secondary btn-sm" data-i18n="clear_chat_btn">Clear</button>
+          </div>
+
+          <!-- Chat History -->
+          <div class="chat-messages" id="chat-messages-container">
+            <div class="message system-msg">
+              <p data-i18n="chat_welcome">Welcome to the Emergency AI Agent. Ask any questions about first-aid, evacuation preparation, water safety, or survival instructions. This AI runs entirely inside your device and works without internet.</p>
+            </div>
+          </div>
+
+          <!-- Interactive Suggestion Chips -->
+          <div class="chat-suggestions">
+            <button class="chip-btn" data-query="How to stop severe bleeding?" data-i18n="chip_bleeding">🩸 Stop Bleeding</button>
+            <button class="chip-btn" data-query="How to perform CPR step-by-step?" data-i18n="chip_cpr">🫀 CPR Steps</button>
+            <button class="chip-btn" data-query="What to do during a strong earthquake shock?" data-i18n="chip_earthquake">🫨 Earthquake Action</button>
+            <button class="chip-btn" data-query="How to treat a burn?" data-i18n="chip_burn">🔥 Burn Treatment</button>
+            <button class="chip-btn" data-query="How to make contaminated water safe to drink?" data-i18n="chip_water">💧 Clean Water</button>
+          </div>
+
+          <!-- Input Controls -->
+          <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Type survival question (e.g. CPR steps)..." data-i18n-placeholder="chat_input_placeholder">
+            <button id="chat-send-btn" class="btn btn-primary" data-i18n="chat_send_btn">Ask AI</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. FIRST AID GUIDANCE -->
+      <section id="tab-firstaid" class="tab-panel">
+        <div class="firstaid-container">
+          <!-- Categories Sidebar -->
+          <div class="firstaid-nav card">
+            <h2 data-i18n="firstaid_title">First-Aid Handbook</h2>
+            <p data-i18n="firstaid_desc" class="card-desc">Quick, high-contrast, offline medical guidance before rescue teams arrive.</p>
+            
+            <div class="firstaid-buttons-grid">
+              <button class="firstaid-category-btn active" data-topic="cpr">
+                <span class="topic-icon">🫀</span>
+                <span class="topic-label" data-i18n="topic_cpr">CPR (Cardiopulmonary Resuscitation)</span>
+              </button>
+              <button class="firstaid-category-btn" data-topic="bleeding">
+                <span class="topic-icon">🩸</span>
+                <span class="topic-label" data-i18n="topic_bleeding">Severe Bleeding Control</span>
+              </button>
+              <button class="firstaid-category-btn" data-topic="burns">
+                <span class="topic-icon">🔥</span>
+                <span class="topic-label" data-i18n="topic_burns">Heat & Chemical Burns</span>
+              </button>
+              <button class="firstaid-category-btn" data-topic="fractures">
+                <span class="topic-icon">🦴</span>
+                <span class="topic-label" data-i18n="topic_fractures">Fractures & Bone Splinting</span>
+              </button>
+              <button class="firstaid-category-btn" data-topic="choking">
+                <span class="topic-icon">🗣️</span>
+                <span class="topic-label" data-i18n="topic_choking">Choking Rescue (Heimlich)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Detail Steps View -->
+          <div class="firstaid-details card" id="firstaid-content-panel">
+            <!-- Populated dynamically via JS to support swift language updates -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. CHECKLISTS -->
+      <section id="tab-checklist" class="tab-panel">
+        <div class="checklist-container card">
+          <div class="checklist-header">
+            <div>
+              <h2 data-i18n="checklist_title">Survival Checklists</h2>
+              <p data-i18n="checklist_desc" class="card-desc">Tick items as you prepare. Progress is automatically saved locally.</p>
+            </div>
+            
+            <select id="checklist-type-selector" aria-label="Disaster Checklist Select">
+              <option value="general" data-i18n="check_opt_general">General Family Grab-Bag</option>
+              <option value="flood" data-i18n="check_opt_flood">Flood Evacuation Prep</option>
+              <option value="earthquake" data-i18n="check_opt_earthquake">Earthquake Home Safety</option>
+              <option value="cyclone" data-i18n="check_opt_cyclone">Cyclone / Hurricane Prep</option>
+            </select>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="checklist-progress-wrapper">
+            <div class="progress-info">
+              <span data-i18n="checklist_progress_label">Preparation Progress:</span>
+              <strong id="checklist-progress-text">0% (0/0)</strong>
+            </div>
+            <div class="progress-bar-container">
+              <div id="checklist-progress-bar" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Checklist Items -->
+          <div id="checklist-items-container" class="checklist-items">
+            <!-- Dynamically populated -->
+          </div>
+
+          <div class="checklist-actions">
+            <button id="reset-checklist-btn" class="btn btn-secondary" data-i18n="reset_check_btn">Reset Checklist</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. RESCUE BEACON & TOOLS -->
+      <section id="tab-tools" class="tab-panel">
+        <div class="tools-grid">
+          
+          <!-- Audio Siren Card -->
+          <div class="card tool-card beacon-card">
+            <h2 data-i18n="audio_beacon_title">Acoustic Locator Beacon</h2>
+            <p data-i18n="audio_beacon_desc" class="card-desc">Emits a high-frequency, high-volume alarm sound to guide search teams to your coordinates.</p>
+            
+            <div class="beacon-visualizer" id="beacon-pulse-glow">
+              <span class="beacon-icon">🚨</span>
+            </div>
+
+            <button id="siren-toggle-btn" class="btn btn-danger btn-large font-bold">
+              <span data-i18n="siren_toggle_play">START SOS SIREN</span>
+            </button>
+            <div class="volume-slider-group">
+              <label for="siren-volume" data-i18n="siren_volume_label">Siren Pitch Pitch / Intensity:</label>
+              <input type="range" id="siren-volume" min="200" max="2000" value="880" step="10">
+            </div>
+          </div>
+
+          <!-- Visual Signaling Card -->
+          <div class="card tool-card strobe-card">
+            <h2 data-i18n="visual_beacon_title">Visual Rescue Strobe</h2>
+            <p data-i18n="visual_beacon_desc" class="card-desc">Rapidly flashes your screen with neon yellow and white light. Hold your phone high in darkness or ruins to attract rescue helicopters or teams.</p>
+            
+            <div class="strobe-preview" id="strobe-preview-box">
+              <span data-i18n="strobe_preview_text">STROBE DISENGAGED</span>
+            </div>
+            
+            <button id="strobe-toggle-btn" class="btn btn-warning btn-large font-bold" data-i18n="strobe_toggle_start">ACTIVATE VISUAL FLASHER</button>
+          </div>
+
+          <!-- Survival Compass -->
+          <div class="card tool-card compass-card">
+            <h2 data-i18n="compass_title">Survival Compass</h2>
+            <p data-i18n="compass_desc" class="card-desc">Navigate safely without cellular networks. Shows direction based on your phone's internal sensors.</p>
+            
+            <!-- Compass Graphical UI -->
+            <div class="compass-wrapper">
+              <div id="compass-disc" class="compass-disc">
+                <div class="compass-marker compass-north">N</div>
+                <div class="compass-marker compass-east">E</div>
+                <div class="compass-marker compass-south">S</div>
+                <div class="compass-marker compass-west">W</div>
+                <div class="compass-needle"></div>
+              </div>
+            </div>
+
+            <div class="compass-info">
+              <span data-i18n="heading_label">Heading Angle:</span>
+              <strong id="compass-heading-val">0° (North)</strong>
+            </div>
+            <button id="compass-permission-btn" class="btn btn-secondary btn-sm hidden" data-i18n="compass_permission_btn">Grant Sensor Permission</button>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Overlay Dialog for SOS Message Builder -->
+    <div id="sos-message-modal" class="modal-overlay hidden">
+      <div class="modal-content card">
+        <div class="modal-header">
+          <h2 data-i18n="sos_builder_title">SOS Alert Message Builder</h2>
+          <button id="close-modal-btn" class="close-btn" aria-label="Close modal">×</button>
+        </div>
+        <p data-i18n="sos_builder_desc" class="card-desc">Automatically compiles your status details and GPS coordinate locations into a clean SMS/WhatsApp message.</p>
+
+        <div class="form-group">
+          <label for="sos-input-phone" data-i18n="sos_phone_label">Recipient Contact Number (Family / Services):</label>
+          <input type="text" id="sos-input-phone" placeholder="e.g. +15550199 or leave empty">
+        </div>
+
+        <div class="form-group">
+          <label for="sos-input-custom-text" data-i18n="sos_custom_text_label">Brief Current Situation / Needs:</label>
+          <textarea id="sos-input-custom-text" placeholder="e.g. Trapped on second floor, rising water levels. Need food and medical assistance."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label data-i18n="sos_preview_label">Generated Message Preview:</label>
+          <div class="message-preview-box" id="sos-message-preview">
+            <!-- Auto-generated message text -->
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button id="copy-sos-btn" class="btn btn-secondary">
+            <span data-i18n="btn_copy">Copy Message</span>
+          </button>
+          <a id="whatsapp-sos-btn" href="#" target="_blank" class="btn btn-success text-center no-decor">
+            <span data-i18n="btn_send_whatsapp">Send WhatsApp</span>
+          </a>
+          <a id="sms-sos-btn" href="#" class="btn btn-primary text-center no-decor">
+            <span data-i18n="btn_send_sms">Send via SMS</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Leaflet Javascript library -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Main Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
