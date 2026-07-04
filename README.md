@@ -137,3 +137,15 @@ Since Disaster Relief AI is built with vanilla HTML/CSS/JavaScript and registere
 
 ## 📄 License
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+
+
+## Some Project Images: 
+
+![](https://www.googleapis.com/download/storage/v1/b/kaggle-user-content/o/inbox%2F26397314%2F7f4966d429e9764369121bb49c152152%2FScreenshot%202026-07-04%20120126.png?generation=1783152884565505&alt=media)
+
+
+![](https://www.googleapis.com/download/storage/v1/b/kaggle-user-content/o/inbox%2F26397314%2Faa3f78842da9db0ec75d8433a651e03f%2FScreenshot%202026-07-04%20134644.png?generation=1783153104241674&alt=media)
+
+
+![](https://www.googleapis.com/download/storage/v1/b/kaggle-user-content/o/inbox%2F26397314%2F4fe17aea0a57953a3bc7286676a6e235%2FScreenshot%202026-07-04%20132942.png?generation=1783153044589183&alt=media)
