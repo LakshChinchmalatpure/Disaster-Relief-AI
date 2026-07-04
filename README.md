@@ -9,6 +9,19 @@
 
 ---
 
+
+# 🚨 Disaster Relief AI
+
+An offline-first emergency assistant designed to help people during disasters.
+
+## 🌐 Live Demo [Deployment]
+
+https://disaster-relief-ai-two.vercel.app
+
+## 📂 GitHub Repository
+
+https://github.com/LakshChinchmalatpure/Disaster-Relief-AI
+
 ## 🌟 Key Features
 
 1. **🤖 Offline AI Triage Chatbot**
